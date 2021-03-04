@@ -5,28 +5,25 @@ using UnityEngine;
 public class Saber : MonoBehaviour
 {
     public LayerMask layer;
-    private Vector3 previousPosition;
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
+    public GameObject slicedCubePrefab;
 
-    // Update is called once per frame
+    private Vector3 previousPosition;
+
     void Update()
     {
         if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 1, layer))
         {
-            //if (Vector3.Angle(transform.position - previousPosition, hit.transform.up) > 90)
+            var angle = Vector3.Angle(transform.position - previousPosition, hit.transform.up);
+            if ( angle > 90)
             {
-                Debug.Log($"Saber hit object {hit}");
                 GameObject cube = hit.transform.gameObject;
-                var rigidBody = cube.GetComponent<Rigidbody>();
-                if(rigidBody)
-                {
-                    rigidBody.AddExplosionForce(10.0f, cube.transform.position, 5.0f, 1.0f, ForceMode.Impulse);
-                }
-
-                Destroy(cube, 1.0f);
+                
+                Vector3 direction = (transform.position - cube.transform.position).normalized;
+                var position = Quaternion.LookRotation(direction);
+                var slicedCube = Instantiate(slicedCubePrefab, transform.position, position);
+                Debug.Log($"Cube position: {cube.transform.position}, sliced cube position: {slicedCube.transform.position}, sliced cube size: {slicedCube.transform.localScale}");
+                Destroy(cube, 0.0f);
+                Destroy(slicedCube, 3f);
             }
         }
 
